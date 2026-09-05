@@ -15,15 +15,14 @@ The package does not manage business relationships, authorization, visibility, d
 composer require afurgeri/laravel-documents
 ```
 
-Publish the package configuration and migrations:
+Publish the package configuration:
 
 ```bash
 php artisan vendor:publish --tag=documents-config
-php artisan vendor:publish --tag=documents-migrations
 php artisan migrate
 ```
 
-The package is also usable without publishing either resource. It loads its default configuration and migrations automatically.
+The package is also usable without publishing its configuration. It loads its default configuration and migrations automatically.
 
 ## Configuration
 

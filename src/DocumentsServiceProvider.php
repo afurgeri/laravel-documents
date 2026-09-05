@@ -21,9 +21,5 @@ class DocumentsServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/documents.php' => config_path('documents.php'),
         ], 'documents-config');
-
-        $this->publishesMigrations([
-            __DIR__.'/../database/migrations' => database_path('migrations'),
-        ], 'documents-migrations');
     }
 }
