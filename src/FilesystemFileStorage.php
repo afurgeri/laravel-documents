@@ -1,14 +1,14 @@
 <?php
 
-namespace Modules\Documents;
+namespace Modules\Files;
 
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Http\UploadedFile;
-use Modules\Documents\Contracts\DocumentStorage as DocumentStorageContract;
+use Modules\Files\Contracts\FileStorage as FileStorageContract;
 use RuntimeException;
 
-class FilesystemDocumentStorage implements DocumentStorageContract
+class FilesystemFileStorage implements FileStorageContract
 {
     public function __construct(private readonly FilesystemManager $filesystems) {}
 
@@ -20,7 +20,7 @@ class FilesystemDocumentStorage implements DocumentStorageContract
         $path = $this->filesystem($disk)->putFile($directory, $file);
 
         if ($path === false) {
-            throw new RuntimeException('The document could not be stored.');
+            throw new RuntimeException('The file could not be stored.');
         }
 
         return ['disk' => $disk, 'path' => $path];
@@ -31,7 +31,7 @@ class FilesystemDocumentStorage implements DocumentStorageContract
         $stream = $this->filesystem($disk)->readStream($path);
 
         if ($stream === false) {
-            throw new RuntimeException('The document could not be read.');
+            throw new RuntimeException('The file could not be read.');
         }
 
         return $stream;
@@ -40,7 +40,7 @@ class FilesystemDocumentStorage implements DocumentStorageContract
     public function delete(string $disk, string $path): void
     {
         if (! $this->filesystem($disk)->delete($path)) {
-            throw new RuntimeException('The document could not be deleted.');
+            throw new RuntimeException('The file could not be deleted.');
         }
     }
 

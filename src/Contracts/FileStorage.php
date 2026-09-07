@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Documents\Contracts;
+namespace Modules\Files\Contracts;
 
 use Illuminate\Http\UploadedFile;
 
-interface DocumentStorage
+interface FileStorage
 {
     /**
      * @return array{disk: string, path: string}

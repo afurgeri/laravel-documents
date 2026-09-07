@@ -1,8 +1,8 @@
-# Laravel Documents
+# Laravel Files
 
-Private document persistence for Laravel applications. The package stores uploaded files on any configured Laravel filesystem disk and persists the technical metadata needed to access them later.
+Private file persistence for Laravel applications. The package stores uploaded files on any configured Laravel filesystem disk and persists the technical metadata needed to access them later.
 
-The package does not manage business relationships, authorization, visibility, document titles, descriptions, or CRUD screens.
+The package does not manage business relationships, authorization, visibility, file titles, descriptions, or CRUD screens.
 
 ## Requirements
 
@@ -12,13 +12,13 @@ The package does not manage business relationships, authorization, visibility, d
 ## Installation
 
 ```bash
-composer require afurgeri/laravel-documents
+composer require afurgeri/laravel-files
 ```
 
 Publish the package configuration:
 
 ```bash
-php artisan vendor:publish --tag=documents-config
+php artisan vendor:publish --tag=files-config
 php artisan migrate
 ```
 
@@ -30,45 +30,45 @@ The default configuration is:
 
 ```php
 return [
-    'disk' => env('DOCUMENTS_DISK', 'local'),
-    'directory' => env('DOCUMENTS_DIRECTORY', 'documents'),
-    'table' => 'documents',
+    'disk' => env('FILES_DISK', 'local'),
+    'directory' => env('FILES_DIRECTORY', 'files'),
+    'table' => 'files',
 ];
 ```
 
 Configure the default disk in `.env`:
 
 ```ini
-DOCUMENTS_DISK=local
-DOCUMENTS_DIRECTORY=documents
+FILES_DISK=local
+FILES_DIRECTORY=files
 ```
 
 To use Amazon S3, configure the `s3` disk in `config/filesystems.php` and set:
 
 ```ini
-DOCUMENTS_DISK=s3
+FILES_DISK=s3
 ```
 
-Documents are stored using the configured disk. The disk name and generated path are persisted with each document, so existing documents continue to point to their original disk if the default changes later.
+Files are stored using the configured disk. The disk name and generated path are persisted with each file, so existing files continue to point to their original disk if the default changes later.
 
-## Storing Documents
+## Storing Files
 
-Inject `DocumentManager` into an application service or controller and pass a validated `UploadedFile`:
+Inject `FileManager` into an application service or controller and pass a validated `UploadedFile`:
 
 ```php
 use Illuminate\Http\UploadedFile;
-use Modules\Documents\DocumentManager;
+use Modules\Files\FileManager;
 
-public function store(UploadedFile $file, DocumentManager $documents): Document
+public function store(UploadedFile $file, FileManager $files): StoredFile
 {
-    return $documents->store($file);
+    return $files->store($file);
 }
 ```
 
-The disk and directory can be overridden for an individual document:
+The disk and directory can be overridden for an individual file:
 
 ```php
-$document = $documents->store(
+$storedFile = $files->store(
     file: $file,
     disk: 's3',
     directory: 'contracts',
@@ -77,37 +77,37 @@ $document = $documents->store(
 
 The service generates the physical filename. The original filename is stored as metadata and is never used as the physical path.
 
-## Reading Documents
+## Reading Files
 
 The consuming application must authorize access before calling these methods:
 
 ```php
-$stream = $documents->readStream($document);
+$stream = $files->readStream($storedFile);
 
 return response()->streamDownload(
     fn () => fpassthru($stream),
-    $document->original_name,
-    ['Content-Type' => $document->mime_type ?? 'application/octet-stream'],
+    $storedFile->original_name,
+    ['Content-Type' => $storedFile->mime_type ?? 'application/octet-stream'],
 );
 ```
 
-`DocumentManager` does not authorize access or expose routes. The application owns those decisions.
+`FileManager` does not authorize access or expose routes. The application owns those decisions.
 
-## Replacing Documents
+## Replacing Files
 
 ```php
-$document = $documents->replace($document, $newFile);
+$storedFile = $files->replace($storedFile, $newFile);
 ```
 
 The new file is stored before the database reference is updated. After a successful update, the previous physical file is removed.
 
-## Deleting Documents
+## Deleting Files
 
 ```php
-$documents->delete($document);
+$files->delete($storedFile);
 ```
 
-This removes the physical file and the `documents` record. If the same document is referenced by multiple business entities, delete it only after the application has removed all of those references.
+This removes the physical file and the `files` record. If the same file is referenced by multiple business entities, delete it only after the application has removed all of those references.
 
 ## Persisted Metadata
 
@@ -125,16 +125,16 @@ The original filename and extension are untrusted input. Validate uploads in the
 
 ## Business Relationships
 
-The package does not know whether a document belongs to a client, contract, or another entity. The consuming application can use a direct foreign key or its own pivot table:
+The package does not know whether a file belongs to a client, contract, or another entity. The consuming application can use a direct foreign key or its own pivot table:
 
 ```php
-public function documents(): BelongsToMany
+public function files(): BelongsToMany
 {
-    return $this->belongsToMany(Document::class, 'contract_documents');
+    return $this->belongsToMany(StoredFile::class, 'contract_files');
 }
 ```
 
-Business metadata such as document type, title, visibility, retention, and permissions belongs in the consuming application.
+Business metadata such as file type, title, visibility, retention, and permissions belongs in the consuming application.
 
 ## Testing
 
@@ -151,4 +151,4 @@ composer test
 - Business relationships and pivot tables
 - CRUD or frontend components
 - Automatic purging and retention policies
-- Document versioning
+- File versioning

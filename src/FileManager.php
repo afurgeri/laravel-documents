@@ -1,24 +1,24 @@
 <?php
 
-namespace Modules\Documents;
+namespace Modules\Files;
 
 use Illuminate\Http\UploadedFile;
-use Modules\Documents\Contracts\DocumentStorage;
-use Modules\Documents\Models\Document;
+use Modules\Files\Contracts\FileStorage;
+use Modules\Files\Models\StoredFile;
 use RuntimeException;
 
-class DocumentManager
+class FileManager
 {
-    public function __construct(private readonly DocumentStorage $storage) {}
+    public function __construct(private readonly FileStorage $storage) {}
 
-    public function store(UploadedFile $file, ?string $disk = null, ?string $directory = null): Document
+    public function store(UploadedFile $file, ?string $disk = null, ?string $directory = null): StoredFile
     {
-        $resolvedDisk = $disk ?? (string) config('documents.disk', 'local');
-        $resolvedDirectory = $directory ?? (string) config('documents.directory', 'documents');
+        $resolvedDisk = $disk ?? (string) config('files.disk', 'local');
+        $resolvedDirectory = $directory ?? (string) config('files.directory', 'files');
         $stored = $this->storage->store($file, $resolvedDisk, $resolvedDirectory);
 
         try {
-            return Document::query()->create([
+            return StoredFile::query()->create([
                 ...$stored,
                 'original_name' => $file->getClientOriginalName(),
                 'extension' => $file->extension(),
@@ -33,23 +33,23 @@ class DocumentManager
         }
     }
 
-    public function readStream(Document $document): mixed
+    public function readStream(StoredFile $file): mixed
     {
-        return $this->storage->readStream($document->disk, $document->path);
+        return $this->storage->readStream($file->disk, $file->path);
     }
 
-    public function replace(Document $document, UploadedFile $file): Document
+    public function replace(StoredFile $storedFile, UploadedFile $file): StoredFile
     {
-        $previousDisk = $document->disk;
-        $previousPath = $document->path;
+        $previousDisk = $storedFile->disk;
+        $previousPath = $storedFile->path;
         $stored = $this->storage->store(
             $file,
-            $document->disk,
-            (string) config('documents.directory', 'documents'),
+            $storedFile->disk,
+            (string) config('files.directory', 'files'),
         );
 
         try {
-            $document->update([
+            $storedFile->update([
                 ...$stored,
                 'original_name' => $file->getClientOriginalName(),
                 'extension' => $file->extension(),
@@ -65,13 +65,13 @@ class DocumentManager
 
         $this->deleteStoredFile($previousDisk, $previousPath);
 
-        return $document->refresh();
+        return $storedFile->refresh();
     }
 
-    public function delete(Document $document): void
+    public function delete(StoredFile $file): void
     {
-        $this->storage->delete($document->disk, $document->path);
-        $document->deleteOrFail();
+        $this->storage->delete($file->disk, $file->path);
+        $file->deleteOrFail();
     }
 
     private function checksum(UploadedFile $file): string
@@ -80,7 +80,7 @@ class DocumentManager
         $checksum = $path === false ? false : hash_file('sha256', $path);
 
         if ($checksum === false) {
-            throw new RuntimeException('The document checksum could not be calculated.');
+            throw new RuntimeException('The file checksum could not be calculated.');
         }
 
         return $checksum;

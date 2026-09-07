@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create((string) config('documents.table', 'documents'), function (Blueprint $table): void {
+        Schema::create((string) config('files.table', 'files'), function (Blueprint $table): void {
             $table->id();
             $table->string('disk');
             $table->string('path');
@@ -26,6 +26,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists((string) config('documents.table', 'documents'));
+        Schema::dropIfExists((string) config('files.table', 'files'));
     }
 };

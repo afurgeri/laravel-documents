@@ -1,7 +1,7 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "afurgeri/laravel-documents",
-    "description": "Private document persistence for Laravel applications.",
+    "name": "afurgeri/laravel-files",
+    "description": "Private file persistence for Laravel applications.",
     "type": "library",
     "license": "MIT",
     "require": {
@@ -19,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Modules\\Documents\\": "src/"
+            "Modules\\Files\\": "src/"
         }
     },
     "autoload-dev": {
@@ -30,7 +30,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Modules\\Documents\\DocumentsServiceProvider"
+                "Modules\\Files\\FilesServiceProvider"
             ]
         }
     },

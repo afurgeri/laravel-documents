@@ -2,13 +2,13 @@
 
 namespace Tests;
 
-use Modules\Documents\DocumentsServiceProvider;
+use Modules\Files\FilesServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
     protected function getPackageProviders($app): array
     {
-        return [DocumentsServiceProvider::class];
+        return [FilesServiceProvider::class];
     }
 }

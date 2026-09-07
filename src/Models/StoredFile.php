@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Documents\Models;
+namespace Modules\Files\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -24,10 +24,10 @@ use Illuminate\Database\Eloquent\Model;
     'size',
     'checksum',
 ])]
-class Document extends Model
+class StoredFile extends Model
 {
     public function getTable(): string
     {
-        return (string) config('documents.table', parent::getTable());
+        return (string) config('files.table', parent::getTable());
     }
 }
